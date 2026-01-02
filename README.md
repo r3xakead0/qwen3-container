@@ -2,7 +2,7 @@
 
 ![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)
 ![GHCR](https://img.shields.io/badge/ghcr-published-brightgreen?logo=github)
-![License](https://img.shields.io/github/license/r3xakead0/qwen3-container)
+![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
 
 Local stack to run **Ollama (custom image with Qwen3 preloaded)** and **Open WebUI**
