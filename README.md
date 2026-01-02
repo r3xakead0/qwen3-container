@@ -19,48 +19,7 @@ models at runtime.
   API available at `http://localhost:11434`
 - **open-webui** → Web-based chat interface available at `http://localhost:3000`
 
-```mermaid
-flowchart TB
-  subgraph SYS[System: Local AI Chat Stack]
-    direction TB
-
-    subgraph POD[Container Boundary: Docker]
-      direction LR
-
-      WEBUI[
-        Container: Open WebUI<br>
-        Purpose: Chat UI and user management<br>
-        Port: 8080 → mapped to 3000
-      ]
-
-      OLLAMA[
-        Container: ollama-qwen3<br>
-        Purpose: Model runtime and API<br>
-        Port: 11434
-      ]
-    end
-
-    V_OLLAMA[
-      Data Store: ollama-data<br>
-      Stores: Models and cache
-    ]
-
-    V_WEBUI[
-      Data Store: open-webui-data<br>
-      Stores: Users, chats, configuration
-    ]
-  end
-
-  USER[Person: User]
-
-  USER -->|Uses browser<br>http://localhost:3000| WEBUI
-  USER -->|Optional API access<br>http://localhost:11434| OLLAMA
-
-  WEBUI -->|HTTP<br>OLLAMA_BASE_URL| OLLAMA
-
-  OLLAMA -->|Persists model files| V_OLLAMA
-  WEBUI -->|Persists application data| V_WEBUI
-```
+![diagram](diagram.png)
 
 ---
 

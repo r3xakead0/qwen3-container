@@ -1,5 +1,5 @@
 services:
-  ollama:
+  ollama-qwen3:
     image: ghcr.io/r3xakead0/qwen3-container/ollama-qwen3:latest
     container_name: ollama-qwen3
     ports:
@@ -20,7 +20,7 @@ services:
     image: ghcr.io/open-webui/open-webui:latest
     container_name: open-webui
     depends_on:
-      - ollama
+      - ollama-qwen3
     ports:
       - "3000:8080"
     environment:
