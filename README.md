@@ -1,5 +1,10 @@
 # Open WebUI + Ollama + Qwen3 with Docker Compose
 
+![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)
+![GHCR](https://img.shields.io/badge/ghcr-published-brightgreen?logo=github)
+![License](https://img.shields.io/github/license/r3xakead0/qwen3-container)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
+
 Local stack to run **Ollama (custom image with Qwen3 preloaded)** and **Open WebUI**
 using **Docker Compose**.
 
@@ -221,3 +226,28 @@ ghcr.io/r3xakead0/qwen3-container/ollama-qwen3:latest
 - Ollama responding on `localhost:11434`
 - Open WebUI accessible on `localhost:3000`
 - Model available and functional
+
+---
+
+## Third-party components
+
+This project uses the following open-source components:
+
+- **Ollama** – MIT License  
+  https://github.com/ollama/ollama
+
+- **Open WebUI** – MIT License  
+  https://github.com/open-webui/open-webui
+
+- **Buildah** – Apache License 2.0  
+  https://github.com/containers/buildah
+
+- **Docker / Docker Compose** – Apache License 2.0  
+  https://www.docker.com/
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
