@@ -1,0 +1,58 @@
+name: Build & Push ollama-qwen3 (Buildah -> GHCR)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ollama-qwen3
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image tags
+        id: meta
+        run: |
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO_LOWER=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="${{ env.REGISTRY }}/${OWNER_LOWER}/${REPO_LOWER}/${{ env.IMAGE_NAME }}"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "tag_sha=${IMAGE}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "tag_latest=${IMAGE}:latest" >> "$GITHUB_OUTPUT"
+
+      - name: Install Buildah
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y buildah
+
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | buildah login \
+            --username "${{ github.actor }}" \
+            --password-stdin \
+            ${{ env.REGISTRY }}
+
+      - name: Build image with Buildah
+        run: |
+          buildah bud \
+            --file Containerfile \
+            --tag "${{ steps.meta.outputs.tag_sha }}" \
+            --tag "${{ steps.meta.outputs.tag_latest }}" \
+            .
+
+      - name: Push SHA tag
+        run: |
+          buildah push "${{ steps.meta.outputs.tag_sha }}"
+
+      - name: Push latest tag
+        run: |
+          buildah push "${{ steps.meta.outputs.tag_latest }}"

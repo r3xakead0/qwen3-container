@@ -1,6 +1,6 @@
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ghcr.io/r3xakead0/qwen3-container/ollama-qwen3:latest
     container_name: ollama-qwen3
     ports:
       - "11434:11434"
@@ -30,18 +30,6 @@ services:
     volumes:
       - open-webui-data:/app/backend/data
     restart: unless-stopped
-
-  model-loader:
-    image: ollama/ollama:latest
-    container_name: model-loader-qwen3
-    depends_on:
-      - ollama
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - MODEL_NAME=${MODEL_NAME:-qwen3:4b}
-    entrypoint: ["ollama"]
-    command: ["pull", "$MODEL_NAME"]
-    restart: on-failure
 
 volumes:
   ollama-data:

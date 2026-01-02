@@ -1,45 +1,40 @@
-# Ollama + Open WebUI + Qwen3 with Docker Compose
+# Open WebUI + Ollama + Qwen3 with Docker Compose
 
-Local stack to run **Ollama** (model server) + **Open WebUI** (chat-style web interface) using **Docker Compose**.
+Local stack to run **Ollama (custom image with Qwen3 preloaded)** and **Open WebUI**
+using **Docker Compose**.
+
+This setup provides a ready-to-use local AI chat environment without downloading
+models at runtime.
 
 ---
 
 ## Quick architecture
 
-- **ollama** → Model API at `http://localhost:11434`
-- **open-webui** → Web interface at `http://localhost:3000`
-- **model-loader** → One-shot container that downloads the `qwen3:4b` model and then exits
+- **ollama-qwen3** → Ollama runtime with model `qwen3:4b` preloaded  
+  API available at `http://localhost:11434`
+- **open-webui** → Web-based chat interface available at `http://localhost:3000`
 
 ```mermaid
 flowchart TB
-  %% ====== System Boundary ======
   subgraph SYS[System: Local AI Chat Stack]
     direction TB
 
-    %% --- Container Boundary ---
     subgraph POD[Container Boundary: Docker]
       direction LR
 
       WEBUI[
         Container: Open WebUI<br>
         Purpose: Chat UI and user management<br>
-        Port: 8080 - mapped to 3000
+        Port: 8080 → mapped to 3000
       ]
 
       OLLAMA[
-        Container: Ollama<br>
+        Container: ollama-qwen3<br>
         Purpose: Model runtime and API<br>
         Port: 11434
       ]
-
-      LOADER[
-        Container: Model Loader<br>
-        Purpose: Download model at startup<br>
-        Runs: ollama pull qwen3:4b
-      ]
     end
 
-    %% --- Data Stores ---
     V_OLLAMA[
       Data Store: ollama-data<br>
       Stores: Models and cache
@@ -47,19 +42,16 @@ flowchart TB
 
     V_WEBUI[
       Data Store: open-webui-data<br>
-      Stores: Users, chats, config
+      Stores: Users, chats, configuration
     ]
   end
 
-  %% ====== External Actor ======
   USER[Person: User]
 
-  %% ====== Relationships ======
   USER -->|Uses browser<br>http://localhost:3000| WEBUI
   USER -->|Optional API access<br>http://localhost:11434| OLLAMA
 
   WEBUI -->|HTTP<br>OLLAMA_BASE_URL| OLLAMA
-  LOADER -->|HTTP<br>Download model| OLLAMA
 
   OLLAMA -->|Persists model files| V_OLLAMA
   WEBUI -->|Persists application data| V_WEBUI
@@ -69,16 +61,17 @@ flowchart TB
 
 ## Requirements
 
-- Docker and Docker Compose
+- Docker (Docker Desktop on macOS)
+- Docker Compose v2 (`docker compose`)
 - Free ports:
-  - `11434` (Ollama)
+  - `11434` (Ollama + Qwen3 API)
   - `3000` (Open WebUI)
 
 ---
 
-## 1) Installation
+## Installation
 
-### 1.1 Install Docker
+### Install Docker
 
 **Fedora / RHEL / CentOS**
 ```bash
@@ -96,7 +89,7 @@ sudo apt update && sudo apt install -y docker.io
 brew install --cask docker
 ```
 
-Verify:
+Verify installation:
 ```bash
 docker --version
 docker compose version
@@ -104,14 +97,13 @@ docker compose version
 
 ---
 
-## 2) Configuration
+## Configuration
 
 Create a `.env` file in the same directory as `docker-compose.yaml`:
 
 ```env
 WEBUI_SECRET_KEY=change-me-to-a-long-random-secret
 ENABLE_SIGNUP=true
-MODEL_NAME=qwen3:8b
 ```
 
 Generate a secure secret:
@@ -121,18 +113,12 @@ openssl rand -hex 32
 
 ---
 
-## 3) Execution
+## Execution
 
 From the project directory:
 
 ```bash
 docker compose up -d
-```
-
-Check status:
-```bash
-docker ps
-docker compose ps
 ```
 
 Access:
@@ -143,9 +129,9 @@ Access:
 
 ---
 
-## 4) Testing and validation
+## Testing and validation
 
-### 4.1 Verify Ollama
+### Verify Ollama
 ```bash
 curl http://localhost:11434
 ```
@@ -155,16 +141,12 @@ Expected response:
 Ollama is running
 ```
 
----
-
-### 4.2 List models
+### List models
 ```bash
 curl http://localhost:11434/api/tags
 ```
 
----
-
-### 4.3 Validate Open WebUI
+### Validate Open WebUI
 Open in the browser:
 ```
 http://localhost:3000
@@ -172,18 +154,15 @@ http://localhost:3000
 
 Create a user, log in, and test a chat with the model.
 
----
-
-### 4.4 Logs
+### Logs
 ```bash
 docker logs ollama-qwen3
 docker logs open-webui
-docker logs model-loader-qwen3
 ```
 
 ---
 
-## 5) Stop and restart
+## Stop and restart
 
 ### Stop
 ```bash
@@ -197,14 +176,14 @@ docker compose start
 
 ---
 
-## 6) Teardown
+## Teardown
 
-### 6.1 Bring down containers (keeps data)
+### Bring down containers (keeps data)
 ```bash
 docker compose down
 ```
 
-### 6.2 Full cleanup (⚠️ removes volumes)
+### Full cleanup (⚠️ removes volumes)
 ```bash
 docker compose down -v
 ```
@@ -212,6 +191,14 @@ docker compose down -v
 This removes:
 - Downloaded models (Ollama)
 - Users and conversations (Open WebUI)
+
+---
+
+## Image source
+
+```
+ghcr.io/r3xakead0/qwen3-container/ollama-qwen3:latest
+```
 
 ---
 
